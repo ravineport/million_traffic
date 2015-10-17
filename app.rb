@@ -7,6 +7,8 @@ require 'sinatra'
 ActiveRecord::Base.configurations = YAML.load_file('./config/database.yml')
 ActiveRecord::Base.establish_connection(:development)
 
+$client = Mysql2::Client.new(:host => 'localhost', :username => 'root', :password => '', :database => 'million_traffic')
+
 class User < ActiveRecord::Base
   self.table_name = "user"
 end
@@ -56,6 +58,16 @@ get '/searchOrder' do
     ans = findByOrderUserId(params)
   elsif params.has_key?("findByOrderItemId")
     ans = findByOrderItemId(params)
+  elsif params.has_key?("findByOrderQuantityGTE")
+    ans = findByOrderQuantityGTE(params)
+  elsif params.has_key?("findByOrderQuantityLTE")
+    ans = findByOrderQuantityLTE(params)
+  elsif params.has_key?("findByOrderState")
+    ans = findByOrderState(params)
+  elsif params.has_key?("findByOrderTagsIncludeAll")
+    ans = findByOrderTagsIncludeAll(params)
+  elsif params.has_key?("findByOrderTagsIncludeAny")
+    ans = findByOrderTagsIncludeAny(params)
   end
 
   return ans
@@ -147,6 +159,117 @@ def findByOrderItemId(params)
     data << detail
   end
 
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByOrderQuantityGTE(params)
+  ans = {:result => true}
+
+  orders = Order.limit(params[:limit])
+           .where("orderQuantity >= ?", params[:findByOrderQuantityGTE])
+           .order("orderDateTime DESC")
+  data = []
+  orders.each do |order|
+    detail = {:orderId       => order[:orderId],
+              :orderDateTime => order[:orderDateTime].to_i,
+              :orderUserId   => order[:orderUserId],
+              :orderItemId   => order[:orderItemId],
+              :orderQuantity => order[:orderQuantity],
+              :orderState    => order[:orderState],
+              :tags          => order[:orderTags].split(',')
+             }
+    data << detail
+  end
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByOrderQuantityLTE(params)
+  ans = {:result => true}
+
+  orders = Order.limit(params[:limit])
+           .where("orderQuantity <= ?", params[:findByOrderQuantityLTE])
+           .order("orderDateTime DESC")
+  data = []
+  orders.each do |order|
+    detail = {:orderId       => order[:orderId],
+              :orderDateTime => order[:orderDateTime].to_i,
+              :orderUserId   => order[:orderUserId],
+              :orderItemId   => order[:orderItemId],
+              :orderQuantity => order[:orderQuantity],
+              :orderState    => order[:orderState],
+              :tags          => order[:orderTags].split(',')
+             }
+    data << detail
+  end
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByOrderState(params)
+  state = params[:findByOrderState]
+
+  ans = {:result => true}
+  orders = Order.limit(params[:limit]).where(:orderState => state)
+           .order("orderDateTime DESC")
+  data = []
+  orders.each do |order|
+    detail = {:orderId       => order[:orderId],
+              :orderDateTime => order[:orderDateTime].to_i,
+              :orderUserId   => order[:orderUserId],
+              :orderItemId   => order[:orderItemId],
+              :orderQuantity => order[:orderQuantity],
+              :orderState    => order[:orderState],
+              :tags          => order[:orderTags].split(',')
+             }
+    data << detail
+  end
+
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByOrderTagsIncludeAll(params)
+  searchTags = params[:findByOrderTagsIncludeAll].split(',')
+  query = "select * from `order` where "
+  searchTags.each do |tag|
+    query += "FIND_IN_SET('#{tag}', orderTags) and "
+  end
+  query.sub!(/and $/, '')
+  query += "order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order["orderDateTime"] = order["orderDateTime"].to_i
+    order["orderTags"] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByOrderTagsIncludeAny(params)
+  searchTags = params[:findByOrderTagsIncludeAny].split(',')
+  query = "select * from `order` where "
+  searchTags.each do |tag|
+    query += "FIND_IN_SET('#{tag}', orderTags) or "
+  end
+  query.sub!(/or $/, '')
+  query += "order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order["orderDateTime"] = order["orderDateTime"].to_i
+    order["orderTags"] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
   ans[:data] = data
   return JSON.pretty_generate(ans)
 end
