@@ -1,7 +1,7 @@
 # coding: utf-8
 @dir = "/home/player/million_traffic/"
 
-worker_processes 2 # CPUのコア数に揃える
+worker_processes 4 # CPUのコア数に揃える
 working_directory @dir
 
 timeout 300

@@ -282,3 +282,35 @@ def findByOrderTagsIncludeAny(params)
   ans[:data] = data
   return JSON.pretty_generate(ans)
 end
+
+# 2
+def findByUserCompany(params)
+  oUId = params[:findByOrderUserId]
+
+  ans = {:result => true}
+  orders = Order.limit(params[:limit]).where(:orderUserId => oUId)
+           .order("orderDateTime DESC")
+  data = []
+  orders.each do |order|
+    detail = {:orderId       => order[:orderId],
+              :orderDateTime => order[:orderDateTime].to_i,
+              :orderUserId   => order[:orderUserId],
+              :orderItemId   => order[:orderItemId],
+              :orderQuantity => order[:orderQuantity],
+              :orderState    => order[:orderState],
+              :tags          => order[:orderTags].split(',')
+             }
+    data << detail
+  end
+
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByUserDiscountRateGTE(params)
+
+end
+
+def findByUserDiscountRateLTE(params)
+
+end
