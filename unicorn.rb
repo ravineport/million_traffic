@@ -1,5 +1,5 @@
 # coding: utf-8
-@dir = "/path/to/app/"
+@dir = "/home/player/million_traffic/"
 
 worker_processes 1 # CPUのコア数に揃える
 working_directory @dir
