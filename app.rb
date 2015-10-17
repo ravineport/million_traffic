@@ -5,7 +5,7 @@ require 'sinatra'
 
 #DB設定ファイルの読み込み
 ActiveRecord::Base.configurations = YAML.load_file('./config/database.yml')
-ActiveRecord::Base.establish_connection('development')
+ActiveRecord::Base.establish_connection(:development)
 
 class User < ActiveRecord::Base
   self.table_name = "user"
