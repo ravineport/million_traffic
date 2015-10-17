@@ -1,0 +1,7 @@
+development:
+  adapter: mysql2
+  database: million_traffic
+  host: localhost
+  username: root
+  password:
+  encoding: utf8
