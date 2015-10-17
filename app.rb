@@ -54,6 +54,8 @@ get '/searchOrder' do
     ans = findByOrderDateTimeLTE(params)
   elsif params.has_key?("findByOrderUserId")
     ans = findByOrderUserId(params)
+  elsif params.has_key?("findByOrderItemId")
+    ans = findByOrderItemId(params)
   end
 
   return ans
