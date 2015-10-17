@@ -285,9 +285,11 @@ end
 
 # 2
 def findByUserCompany(params)
-  oUId = params[:findByOrderUserId]
+  company = params[:findByUserCompany]
 
   ans = {:result => true}
+
+
   orders = Order.limit(params[:limit]).where(:orderUserId => oUId)
            .order("orderDateTime DESC")
   data = []
