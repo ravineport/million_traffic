@@ -50,6 +50,7 @@ end
 get '/searchOrder' do
   ans = JSON.parse('{}')
   params[:limit] = 100 if params[:limit] == nil
+  # 1
   if params.has_key?("findByOrderDateTimeGTE")
     ans = findByOrderDateTimeGTE(params)
   elsif params.has_key?("findByOrderDateTimeLTE")
@@ -68,6 +69,14 @@ get '/searchOrder' do
     ans = findByOrderTagsIncludeAll(params)
   elsif params.has_key?("findByOrderTagsIncludeAny")
     ans = findByOrderTagsIncludeAny(params)
+  # 2
+  elsif params.has_key?("findByUserCompany")
+    ans = findByUserCompany(params)
+  elsif params.has_key?("findByUserDiscountRateGTE")
+    ans = findByUserDiscountRateGTE(params)
+  elsif params.has_key?("findByUserDiscountRateLTE")
+    ans = findByUserDiscountRateLTE(params)
+
   end
 
   return ans
