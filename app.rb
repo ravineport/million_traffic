@@ -59,7 +59,19 @@ get '/searchOrder' do
 end
 
 def findByOrderDateTimeGTE(params)
+  ans = {:result => true}
 
+  order = Order.limit(params[:limit]).where(:)
+  data = {:orderId => order[:orderId],
+          :orderDateTime => order[:orderDateTime].to_i,
+          :orderUserId => order[:orderUserId],
+          :orderItemId => order[:orderItemId],
+          :orderQuantity => order[:orderQuantity],
+          :orderState => order[:orderState],
+          :tags => order[:orderTags],
+         }
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
 end
 
 def findByOrderDateTimeLTE(params)
