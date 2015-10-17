@@ -47,6 +47,7 @@ end
 
 get '/searchOrder' do
   ans = JSON.parse('{}')
+  params[:limit] = 100 if params[:limit] == nil
   if params.has_key?("findByOrderDateTimeGTE")
     ans = findByOrderDateTimeGTE(params)
   elsif params.has_key?("findByOrderDateTimeLTE")
@@ -61,32 +62,54 @@ end
 def findByOrderDateTimeGTE(params)
   ans = {:result => true}
 
-  order = Order.limit(params[:limit]).where(:)
-  data = {:orderId => order[:orderId],
-          :orderDateTime => order[:orderDateTime].to_i,
-          :orderUserId => order[:orderUserId],
-          :orderItemId => order[:orderItemId],
-          :orderQuantity => order[:orderQuantity],
-          :orderState => order[:orderState],
-          :tags => order[:orderTags],
-         }
+  orders = Order.limit(params[:limit]).where("orderDateTime >= ?",
+                                            params[:findByOrderDateTimeGTE])
+  data = []
+  orders.each do |order|
+    detail = {:orderId       => order[:orderId],
+              :orderDateTime => order[:orderDateTime].to_i,
+              :orderUserId   => order[:orderUserId],
+              :orderItemId   => order[:orderItemId],
+              :orderQuantity => order[:orderQuantity],
+              :orderState    => order[:orderState],
+              :tags          => order[:orderTags].split(',')
+             }
+    data << detail
+  end
   ans[:data] = data
   return JSON.pretty_generate(ans)
 end
 
 def findByOrderDateTimeLTE(params)
+  ans = {:result => true}
 
+  orders = Order.limit(params[:limit]).where("orderDateTime <= ?",
+                                            params[:findByOrderDateTimeLTE])
+  data = []
+  orders.each do |order|
+    detail = {:orderId       => order[:orderId],
+              :orderDateTime => order[:orderDateTime].to_i,
+              :orderUserId   => order[:orderUserId],
+              :orderItemId   => order[:orderItemId],
+              :orderQuantity => order[:orderQuantity],
+              :orderState    => order[:orderState],
+              :tags          => order[:orderTags].split(',')
+             }
+    data << detail
+  end
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
 end
 
 def findByOrderUserId(params)
   oUId = params[:findByOrderUserId]
-  p oUId
   if !Order.exists?(:orderUserId => oUId)
     ans = {:result => false,
            :data   => nil
           }
     return JSON.pretty_generate(ans)
   end
+
   ans = {:result => true}
   orders = Order.limit(params[:limit]).where(:orderUserId => oUId)
   data = []
@@ -97,7 +120,7 @@ def findByOrderUserId(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(','),
+              :tags          => order[:orderTags].split(',')
              }
     data << detail
   end
