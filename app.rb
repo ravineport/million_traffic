@@ -86,7 +86,7 @@ get '/searchOrder' do
   elsif params.has_key?("findByItemBasePriceGTE")
     ans = findByItemBasePriceGTE(params)
   elsif params.has_key?("findByItemBasePriceLTE")
-    ans = findByItemBasePriceGTE(params)
+    ans = findByItemBasePriceLTE(params)
   elsif params.has_key?("findByItemTagsIncludeAll")
     ans = findByItemTagsIncludeAll(params)
   elsif params.has_key?("findByItemTagsIncludeAny")
@@ -357,7 +357,7 @@ end
 def findByItemSupplier(params)
   ans = {:result => true}
 
-  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where item.itemSupplier=#{params[:findByItemSupplier]} order by orderDateTime desc limit #{params[:limit]}"
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where item.itemSupplier='#{params[:findByItemSupplier]}' order by orderDateTime desc limit #{params[:limit]}"
 
   data = []
   orders = $client.query(query)
