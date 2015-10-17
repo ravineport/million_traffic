@@ -62,8 +62,9 @@ end
 def findByOrderDateTimeGTE(params)
   ans = {:result => true}
 
-  orders = Order.limit(params[:limit]).where("orderDateTime >= ?",
-                                            params[:findByOrderDateTimeGTE])
+  orders = Order.limit(params[:limit])
+           .where("orderDateTime >= ?", params[:findByOrderDateTimeGTE])
+           .order(:orderDateTime)
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -83,8 +84,9 @@ end
 def findByOrderDateTimeLTE(params)
   ans = {:result => true}
 
-  orders = Order.limit(params[:limit]).where("orderDateTime <= ?",
-                                            params[:findByOrderDateTimeLTE])
+  orders = Order.limit(params[:limit])
+           .where("orderDateTime <= ?", params[:findByOrderDateTimeLTE])
+           .order(:orderDateTime)
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -103,15 +105,33 @@ end
 
 def findByOrderUserId(params)
   oUId = params[:findByOrderUserId]
-  if !Order.exists?(:orderUserId => oUId)
-    ans = {:result => false,
-           :data   => nil
-          }
-    return JSON.pretty_generate(ans)
-  end
 
   ans = {:result => true}
   orders = Order.limit(params[:limit]).where(:orderUserId => oUId)
+           .order(:orderDateTime)
+  data = []
+  orders.each do |order|
+    detail = {:orderId       => order[:orderId],
+              :orderDateTime => order[:orderDateTime].to_i,
+              :orderUserId   => order[:orderUserId],
+              :orderItemId   => order[:orderItemId],
+              :orderQuantity => order[:orderQuantity],
+              :orderState    => order[:orderState],
+              :tags          => order[:orderTags].split(',')
+             }
+    data << detail
+  end
+
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByOrderItemId(params)
+  iUId = params[:findByOrderItemId]
+
+  ans = {:result => true}
+  orders = Order.limit(params[:limit]).where(:orderItemId => iUId)
+           .order(:orderDateTime)
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
