@@ -64,7 +64,7 @@ def findByOrderDateTimeGTE(params)
 
   orders = Order.limit(params[:limit])
            .where("orderDateTime >= ?", params[:findByOrderDateTimeGTE])
-           .order(:orderDateTime)
+           .order("orderDateTime DESC")
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -86,7 +86,7 @@ def findByOrderDateTimeLTE(params)
 
   orders = Order.limit(params[:limit])
            .where("orderDateTime <= ?", params[:findByOrderDateTimeLTE])
-           .order(:orderDateTime)
+           .order("orderDateTime DESC")
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -108,7 +108,7 @@ def findByOrderUserId(params)
 
   ans = {:result => true}
   orders = Order.limit(params[:limit]).where(:orderUserId => oUId)
-           .order(:orderDateTime)
+           .order("orderDateTime DESC")
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -131,7 +131,7 @@ def findByOrderItemId(params)
 
   ans = {:result => true}
   orders = Order.limit(params[:limit]).where(:orderItemId => iUId)
-           .order(:orderDateTime)
+           .order("orderDateTime DESC")
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
