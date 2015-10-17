@@ -3,7 +3,7 @@
 set -e
 
 TIMEOUT=${TIMEOUT-60}
-APP_ROOT=/home//home/player/million_traffic
+APP_ROOT=/home/player/million_traffic
 PID=$APP_ROOT/tmp/pids/unicorn.pid
 #RAILS_ENV=production
 RAILS_ENV=development
