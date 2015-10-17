@@ -99,9 +99,10 @@ end
 def findByOrderDateTimeGTE(params)
   ans = {:result => true}
 
-  orders = Order.limit(params[:limit])
+  orders = Order
            .where("orderDateTime >= ?", params[:findByOrderDateTimeGTE])
            .order("orderDateTime DESC")
+           .limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -121,9 +122,10 @@ end
 def findByOrderDateTimeLTE(params)
   ans = {:result => true}
 
-  orders = Order.limit(params[:limit])
+  orders = Order
            .where("orderDateTime <= ?", params[:findByOrderDateTimeLTE])
            .order("orderDateTime DESC")
+           .limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -144,8 +146,8 @@ def findByOrderUserId(params)
   oUId = params[:findByOrderUserId]
 
   ans = {:result => true}
-  orders = Order.limit(params[:limit]).where(:orderUserId => oUId)
-           .order("orderDateTime DESC")
+  orders = Order.where(:orderUserId => oUId)
+           .order("orderDateTime DESC").limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -167,8 +169,8 @@ def findByOrderItemId(params)
   iUId = params[:findByOrderItemId]
 
   ans = {:result => true}
-  orders = Order.limit(params[:limit]).where(:orderItemId => iUId)
-           .order("orderDateTime DESC")
+  orders = Order.where(:orderItemId => iUId)
+           .order("orderDateTime DESC").limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -189,9 +191,10 @@ end
 def findByOrderQuantityGTE(params)
   ans = {:result => true}
 
-  orders = Order.limit(params[:limit])
+  orders = Order
            .where("orderQuantity >= ?", params[:findByOrderQuantityGTE])
            .order("orderDateTime DESC")
+           .limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -211,9 +214,10 @@ end
 def findByOrderQuantityLTE(params)
   ans = {:result => true}
 
-  orders = Order.limit(params[:limit])
+  orders = Order
            .where("orderQuantity <= ?", params[:findByOrderQuantityLTE])
            .order("orderDateTime DESC")
+           .limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -234,8 +238,8 @@ def findByOrderState(params)
   state = params[:findByOrderState]
 
   ans = {:result => true}
-  orders = Order.limit(params[:limit]).where(:orderState => state)
-           .order("orderDateTime DESC")
+  orders = Order.where(:orderState => state)
+           .order("orderDateTime DESC").limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
