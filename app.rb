@@ -76,7 +76,21 @@ get '/searchOrder' do
     ans = findByUserDiscountRateGTE(params)
   elsif params.has_key?("findByUserDiscountRateLTE")
     ans = findByUserDiscountRateLTE(params)
-
+  # 3
+  elsif params.has_key?("findByItemSupplier")
+    ans = findByItemSupplier(params)
+  elsif params.has_key?("findByItemStockQuantityGTE")
+    ans = findByItemStockQuantityGTE(params)
+  elsif params.has_key?("findByItemStockQuantityLTE")
+    ans = findByItemStockQuantityLTE(params)
+  elsif params.has_key?("findByItemBasePriceGTE")
+    ans = findByItemBasePriceGTE(params)
+  elsif params.has_key?("findByItemBasePriceLTE")
+    ans = findByItemBasePriceGTE(params)
+  elsif params.has_key?("findByItemTagsIncludeAll")
+    ans = findByItemTagsIncludeAll(params)
+  elsif params.has_key?("findByItemTagsIncludeAny")
+    ans = findByItemTagsIncludeAny(params)
   end
 
   return ans
@@ -305,7 +319,7 @@ end
 def findByUserDiscountRateGTE(params)
   ans = {:result => true}
 
-  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join user on user.userId=`order`.orderUserId where user.userDiscountRate>='#{params[:findByUserDiscountRateGTE]}' order by orderDateTime desc limit #{params[:limit]}"
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join user on user.userId=`order`.orderUserId where user.userDiscountRate>=#{params[:findByUserDiscountRateGTE]} order by orderDateTime desc limit #{params[:limit]}"
 
   data = []
   orders = $client.query(query)
@@ -323,13 +337,151 @@ end
 def findByUserDiscountRateLTE(params)
   ans = {:result => true}
 
-  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join user on user.userId=`order`.orderUserId where user.userDiscountRate<='#{params[:findByUserDiscountRateLTE]}' order by orderDateTime desc limit #{params[:limit]}"
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join user on user.userId=`order`.orderUserId where user.userDiscountRate<=#{params[:findByUserDiscountRateLTE]} order by orderDateTime desc limit #{params[:limit]}"
 
   data = []
   orders = $client.query(query)
   orders.each do |order|
     order[:orderDateTime] = order["orderDateTime"].to_i
     order[:orderTags] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+
+# 3
+def findByItemSupplier(params)
+  ans = {:result => true}
+
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where item.itemSupplier=#{params[:findByItemSupplier]} order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order[:orderDateTime] = order["orderDateTime"].to_i
+    order[:orderTags] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByItemStockQuantityGTE(params)
+  ans = {:result => true}
+
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where item.itemStockQuantity>=#{params[:findByItemStockQuantityGTE]} order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order[:orderDateTime] = order["orderDateTime"].to_i
+    order[:orderTags] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByItemStockQuantityLTE(params)
+  ans = {:result => true}
+
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where item.itemStockQuantity<=#{params[:findByItemStockQuantityLTE]} order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order[:orderDateTime] = order["orderDateTime"].to_i
+    order[:orderTags] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByItemBasePriceGTE(params)
+  ans = {:result => true}
+
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where item.itemBasePrice>=#{params[:findByItemBasePriceGTE]} order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order[:orderDateTime] = order["orderDateTime"].to_i
+    order[:orderTags] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByItemBasePriceLTE(params)
+  ans = {:result => true}
+
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where item.itemBasePrice<=#{params[:findByItemBasePriceLTE]} order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order[:orderDateTime] = order["orderDateTime"].to_i
+    order[:orderTags] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByItemTagsIncludeAll(params)
+  searchTags = params[:findByItemTagsIncludeAll].split(',')
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where "
+  searchTags.each do |tag|
+    query += "FIND_IN_SET('#{tag}', item.itemTags) and "
+  end
+  query.sub!(/and $/, '')
+  query += "order by orderDateTime desc limit #{params[:limit]}"
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order["orderDateTime"] = order["orderDateTime"].to_i
+    order["orderTags"] = order["orderTags"].split(',')
+    data << order
+  end
+
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+end
+
+def findByItemTagsIncludeAny(params)
+  searchTags = params[:findByItemTagsIncludeAny].split(',')
+  query = "select `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags from `order` inner join item on item.itemId=`order`.orderItemId where "
+  searchTags.each do |tag|
+    query += "FIND_IN_SET('#{tag}', item.itemTags) or "
+  end
+  query.sub!(/or $/, '')
+  query += "order by orderDateTime desc limit #{params[:limit]}"
+
+  p query
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order["orderDateTime"] = order["orderDateTime"].to_i
+    order["orderTags"] = order["orderTags"].split(',')
     data << order
   end
 
