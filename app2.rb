@@ -53,11 +53,31 @@ get '/searchOrder' do
 
   # findByOrder
   queryOrderWhere = findByOrder(params)
-  queryOrderWhere.sub!(/and $/, '')
-  queryOrderWhere.sub!(/or $/, '')
-  query = "select * from `order` where " + queryOrderWhere + " order by orderDateTime desc limit #{params[:limit]}"
-  p query
+  #query = "SELECT * FROM `order` WHERE " + queryOrderWhere + " ORDER BY orderDateTime DESC LIMIT #{params[:limit]}"
 
+  # findByUser
+  queryUserWhere = findByUser(params)
+
+  # findByItem
+  queryItemWhere = findByItem(params)
+  #query = queryOrderWhere + queryUserWhere
+
+  queryHeader = ""
+  if queryUserWhere == "" && queryItemWhere == ""
+    queryHeader = "SELECT * FROM `order` WHERE "
+  elsif queryUserWhere != "" && queryItemWhere == ""
+    queryHeader = "SELECT `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags FROM `order` INNER JOIN user ON user.userId=`order`.orderUserId WHERE "
+  elsif queryUserWhere == "" && queryItemWhere != ""
+    queryHeader = "SELECT `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags FROM `order` INNER JOIN item ON item.itemId=`order`.orderItemId WHERE "
+  else
+    queryHeader = "SELECT `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags FROM `order` INNER JOIN user ON user.userId=`order`.orderUserId INNER JOIN item ON item.itemId=`order`.orderItemId WHERE "
+  end
+
+  query = queryHeader + queryOrderWhere + queryUserWhere + queryItemWhere
+  query.sub!(/AND $/, '')
+  query += " ORDER BY orderDateTime DESC LIMIT #{params[:limit]}"
+
+  p query
   data = []
   orders = $client.query(query)
   orders.each do |order|
@@ -68,55 +88,89 @@ get '/searchOrder' do
   ans = {:result => true}
   ans[:data] = data
   return JSON.pretty_generate(ans)
-  # findByUser
-
-
-  return ans
 end
 
 def findByOrder(params)
   query = ""
   if params.has_key?("findByOrderDateTimeGTE")
-    query += "orderDateTime >= #{params[:findByOrderDateTimeGTE]} and "
+    query += "orderDateTime >= #{params[:findByOrderDateTimeGTE]} AND "
   end
   if params.has_key?("findByOrderDateTimeLTE")
-    query += "orderDateTime <= #{params[:findByOrderDateTimeLTE]} and "
+    query += "orderDateTime <= #{params[:findByOrderDateTimeLTE]} AND "
   end
   if params.has_key?("findByOrderUserId")
-    query += "orderUserId = '#{params[:findByOrderUserId]}' and "
+    query += "orderUserId = '#{params[:findByOrderUserId]}' AND "
   end
   if params.has_key?("findByOrderItemId")
-    query += "orderItemId = '#{params[:findByOrderItemId]}' and "
+    query += "orderItemId = '#{params[:findByOrderItemId]}' AND "
   end
   if params.has_key?("findByOrderQuantityGTE")
-    query += "orderQuantity >= #{params[:findByOrderQuantityGTE]} and "
+    query += "orderQuantity >= #{params[:findByOrderQuantityGTE]} AND "
   end
   if params.has_key?("findByOrderQuantityLTE")
-    query += "orderQuantity <= #{params[:findByOrderQuantityLTE]} and "
+    query += "orderQuantity <= #{params[:findByOrderQuantityLTE]} AND "
   end
   if params.has_key?("findByOrderState")
-    query += "orderState = '#{params[:findByOrderState]}' and "
+    query += "orderState = '#{params[:findByOrderState]}' AND "
   end
   if params.has_key?("findByOrderTagsIncludeAll")
     searchTags = params[:findByOrderTagsIncludeAll].split(',')
     searchTags.each do |tag|
-      query += "FIND_IN_SET('#{tag}', orderTags) and "
+      query += "FIND_IN_SET('#{tag}', orderTags) AND "
     end
   end
   if params.has_key?("findByOrderTagsIncludeAny")
     searchTags = params[:findByOrderTagsIncludeAny].split(',')
     query += "("
     searchTags.each do |tag|
-      query += "FIND_IN_SET('#{tag}', orderTags) or "
+      query += "FIND_IN_SET('#{tag}', orderTags) OR "
     end
-    query.sub!(/or $/, '')
+    query.sub!(/OR $/, '')
     query += ")"
+    query += " AND "
   end
   return query
 end
 
 def findByUser(params)
+  #query = "SELECT `order`.orderId, `order`.orderDateTime, `order`.orderUserId, `order`.orderItemId, `order`.orderQuantity, `order`.orderState, `order`.orderTags FROM `order` INNER JOIN user ON user.userId=`order`.orderUserId WHERE "
+  query = ""
 
+  if params.has_key?("findByUserCompany")
+    query += "user.userCompany='#{params[:findByUserCompany]}' AND "
+  end
+  if params.has_key?("findByUserDiscountRateGTE")
+    query += "user.userDiscountRate >= #{params[:findByUserDiscountRateGTE]} AND "
+  end
+  if params.has_key?("findByUserDiscountRateLTE")
+    query += "user.userDiscountRate <= #{params[:findByUserDiscountRateLTE]} AND "
+  end
+
+  return query
+end
+
+def findByItem(params)
+  query = ""
+
+  if params.has_key?("findByItemSupplier")
+
+  end
+  if params.has_key?("findByItemStockQuantityGTE")
+
+  end
+  if params.has_key?("findByItemStockQuantityLTE")
+
+  end
+  if params.has_key?("findByItemBasePriceGTE")
+
+  end
+  if params.has_key?("findByItemBasePriceLTE")
+
+  end
+  if params.has_key?("findByItemTagsIncludeAll")
+
+  end
+  return query
 end
 
 def findByOrderDateTimeGTE(params)
