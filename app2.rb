@@ -50,50 +50,73 @@ end
 get '/searchOrder' do
   ans = JSON.parse('{}')
   params[:limit] = 100 if params[:limit] == nil
-  # 1
-  if params.has_key?("findByOrderDateTimeGTE")
-    ans = findByOrderDateTimeGTE(params)
-  elsif params.has_key?("findByOrderDateTimeLTE")
-    ans = findByOrderDateTimeLTE(params)
-  elsif params.has_key?("findByOrderUserId")
-    ans = findByOrderUserId(params)
-  elsif params.has_key?("findByOrderItemId")
-    ans = findByOrderItemId(params)
-  elsif params.has_key?("findByOrderQuantityGTE")
-    ans = findByOrderQuantityGTE(params)
-  elsif params.has_key?("findByOrderQuantityLTE")
-    ans = findByOrderQuantityLTE(params)
-  elsif params.has_key?("findByOrderState")
-    ans = findByOrderState(params)
-  elsif params.has_key?("findByOrderTagsIncludeAll")
-    ans = findByOrderTagsIncludeAll(params)
-  elsif params.has_key?("findByOrderTagsIncludeAny")
-    ans = findByOrderTagsIncludeAny(params)
-  # 2
-  elsif params.has_key?("findByUserCompany")
-    ans = findByUserCompany(params)
-  elsif params.has_key?("findByUserDiscountRateGTE")
-    ans = findByUserDiscountRateGTE(params)
-  elsif params.has_key?("findByUserDiscountRateLTE")
-    ans = findByUserDiscountRateLTE(params)
-  # 3
-  elsif params.has_key?("findByItemSupplier")
-    ans = findByItemSupplier(params)
-  elsif params.has_key?("findByItemStockQuantityGTE")
-    ans = findByItemStockQuantityGTE(params)
-  elsif params.has_key?("findByItemStockQuantityLTE")
-    ans = findByItemStockQuantityLTE(params)
-  elsif params.has_key?("findByItemBasePriceGTE")
-    ans = findByItemBasePriceGTE(params)
-  elsif params.has_key?("findByItemBasePriceLTE")
-    ans = findByItemBasePriceLTE(params)
-  elsif params.has_key?("findByItemTagsIncludeAll")
-    ans = findByItemTagsIncludeAll(params)
-  elsif params.has_key?("findByItemTagsIncludeAny")
-    ans = findByItemTagsIncludeAny(params)
+
+  # findByOrder
+  queryOrderWhere = findByOrder(params)
+  queryOrderWhere.sub!(/and $/, '')
+  queryOrderWhere.sub!(/or $/, '')
+  query = "select * from `order` where " + queryOrderWhere + " order by orderDateTime desc limit #{params[:limit]}"
+  p query
+
+  data = []
+  orders = $client.query(query)
+  orders.each do |order|
+    order["orderDateTime"] = order["orderDateTime"].to_i
+    order["orderTags"] = order["orderTags"].split(',')
+    data << order
   end
+  ans = {:result => true}
+  ans[:data] = data
+  return JSON.pretty_generate(ans)
+  # findByUser
+
 
   return ans
+end
+
+def findByOrder(params)
+  query = ""
+  if params.has_key?("findByOrderDateTimeGTE")
+    query += "orderDateTime >= #{params[:findByOrderDateTimeGTE]} and "
+  end
+  if params.has_key?("findByOrderDateTimeLTE")
+    query += "orderDateTime <= #{params[:findByOrderDateTimeLTE]} and "
+  end
+  if params.has_key?("findByOrderUserId")
+    query += "orderUserId = '#{params[:findByOrderUserId]}' and "
+  end
+  if params.has_key?("findByOrderItemId")
+    query += "orderItemId = '#{params[:findByOrderItemId]}' and "
+  end
+  if params.has_key?("findByOrderQuantityGTE")
+    query += "orderQuantity >= #{params[:findByOrderQuantityGTE]} and "
+  end
+  if params.has_key?("findByOrderQuantityLTE")
+    query += "orderQuantity <= #{params[:findByOrderQuantityLTE]} and "
+  end
+  if params.has_key?("findByOrderState")
+    query += "orderState = '#{params[:findByOrderState]}' and "
+  end
+  if params.has_key?("findByOrderTagsIncludeAll")
+    searchTags = params[:findByOrderTagsIncludeAll].split(',')
+    searchTags.each do |tag|
+      query += "FIND_IN_SET('#{tag}', orderTags) and "
+    end
+  end
+  if params.has_key?("findByOrderTagsIncludeAny")
+    searchTags = params[:findByOrderTagsIncludeAny].split(',')
+    query += "("
+    searchTags.each do |tag|
+      query += "FIND_IN_SET('#{tag}', orderTags) or "
+    end
+    query.sub!(/or $/, '')
+    query += ")"
+  end
+  return query
+end
+
+def findByUser(params)
+
 end
 
 def findByOrderDateTimeGTE(params)
