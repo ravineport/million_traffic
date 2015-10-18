@@ -153,23 +153,37 @@ def findByItem(params)
   query = ""
 
   if params.has_key?("findByItemSupplier")
-
+    query += "item.itemSupplier='#{params[:findByItemSupplier]}' AND "
   end
   if params.has_key?("findByItemStockQuantityGTE")
-
+    query += "item.itemStockQuantity >= #{params[:findByItemStockQuantityGTE]} AND "
   end
   if params.has_key?("findByItemStockQuantityLTE")
-
+    query += "item.itemStockQuantity <= #{params[:findByItemStockQuantityLTE]} AND "
   end
   if params.has_key?("findByItemBasePriceGTE")
-
+    query += "item.itemBasePrice >= #{params[:findByItemBasePriceGTE]} AND "
   end
   if params.has_key?("findByItemBasePriceLTE")
-
+    query += "item.itemBasePrice <= #{params[:findByItemBasePriceLTE]} AND "
   end
   if params.has_key?("findByItemTagsIncludeAll")
-
+    searchTags = params[:findByItemTagsIncludeAll].split(',')
+    searchTags.each do |tag|
+      query += "FIND_IN_SET('#{tag}', item.itemTags) AND "
+    end
   end
+  if params.has_key?("findByItemTagsIncludeAny")
+    searchTags = params[:findByItemTagsIncludeAny].split(',')
+    query += "("
+    searchTags.each do |tag|
+      query += "FIND_IN_SET('#{tag}', item.itemTags) OR "
+    end
+    query.sub!(/OR $/, '')
+    query += ")"
+    query += " AND "
+  end
+
   return query
 end
 
