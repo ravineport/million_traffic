@@ -111,7 +111,7 @@ def findByOrderDateTimeGTE(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(',')
+              :orderTags     => order[:orderTags].split(',')
              }
     data << detail
   end
@@ -134,7 +134,7 @@ def findByOrderDateTimeLTE(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(',')
+              :orderTags          => order[:orderTags].split(',')
              }
     data << detail
   end
@@ -146,8 +146,10 @@ def findByOrderUserId(params)
   oUId = params[:findByOrderUserId]
 
   ans = {:result => true}
-  orders = Order.where(:orderUserId => oUId)
-           .order("orderDateTime DESC").limit(params[:limit])
+  orders = Order
+           .where(:orderUserId => oUId)
+           .order("orderDateTime DESC")
+           .limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -156,7 +158,7 @@ def findByOrderUserId(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(',')
+              :orderTags          => order[:orderTags].split(',')
              }
     data << detail
   end
@@ -169,8 +171,10 @@ def findByOrderItemId(params)
   iUId = params[:findByOrderItemId]
 
   ans = {:result => true}
-  orders = Order.where(:orderItemId => iUId)
-           .order("orderDateTime DESC").limit(params[:limit])
+  orders = Order
+           .where(:orderItemId => iUId)
+           .order("orderDateTime DESC")
+           .limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -179,7 +183,7 @@ def findByOrderItemId(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(',')
+              :orderTags          => order[:orderTags].split(',')
              }
     data << detail
   end
@@ -203,7 +207,7 @@ def findByOrderQuantityGTE(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(',')
+              :orderTags          => order[:orderTags].split(',')
              }
     data << detail
   end
@@ -226,7 +230,7 @@ def findByOrderQuantityLTE(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(',')
+              :orderTags          => order[:orderTags].split(',')
              }
     data << detail
   end
@@ -238,8 +242,10 @@ def findByOrderState(params)
   state = params[:findByOrderState]
 
   ans = {:result => true}
-  orders = Order.where(:orderState => state)
-           .order("orderDateTime DESC").limit(params[:limit])
+  orders = Order
+           .where(:orderState => state)
+           .order("orderDateTime DESC")
+           .limit(params[:limit])
   data = []
   orders.each do |order|
     detail = {:orderId       => order[:orderId],
@@ -248,7 +254,7 @@ def findByOrderState(params)
               :orderItemId   => order[:orderItemId],
               :orderQuantity => order[:orderQuantity],
               :orderState    => order[:orderState],
-              :tags          => order[:orderTags].split(',')
+              :orderTags          => order[:orderTags].split(',')
              }
     data << detail
   end
